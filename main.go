@@ -37,7 +37,7 @@ func main() {
 
 	v1Router.Get("/healthz", handlerReadiness)
 	v1Router.Get("/err", func(w http.ResponseWriter, r *http.Request) {
-		respondWithError(w, http.StatusInternalServerError, "This is an error")
+		respondWithError(w, http.StatusBadRequest, "This is an error")
 	})
 
 	router.Mount("/v1", v1Router)
@@ -51,7 +51,7 @@ func main() {
 		Addr:    ":" + PORT,
 	}
 
-	fmt.Printf("Server is running on port: http://localhost:%v", PORT)
+	fmt.Printf("Server is running on port: http://localhost:%v\n", PORT)
 	err := srv.ListenAndServe()
 	if err != nil {
 		panic(err)

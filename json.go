@@ -8,7 +8,7 @@ import (
 
 func respondWithError(w http.ResponseWriter, code int, message string) {
 	if code > 499 {
-		log.Panicln("Respondign with 5xx err:")
+		log.Println("Responding with 5xx err:")
 	}
 	log.Println("Error: ", message)
 	type errorMessage struct {
