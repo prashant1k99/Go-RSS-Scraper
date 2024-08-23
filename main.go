@@ -33,6 +33,15 @@ func main() {
 		MaxAge:           300,
 	}))
 
+	v1Router := chi.NewRouter()
+
+	v1Router.Get("/healthz", handlerReadiness)
+	v1Router.Get("/err", func(w http.ResponseWriter, r *http.Request) {
+		respondWithError(w, http.StatusInternalServerError, "This is an error")
+	})
+
+	router.Mount("/v1", v1Router)
+
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello World"))
 	})

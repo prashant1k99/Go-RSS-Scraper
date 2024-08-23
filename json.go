@@ -2,11 +2,27 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
+func respondWithError(w http.ResponseWriter, code int, message string) {
+	if code > 499 {
+		log.Panicln("Respondign with 5xx err:")
+	}
+	log.Println("Error: ", message)
+	type errorMessage struct {
+		Error string `json:"error"`
+	}
+	respondWithJSON(w, code, errorMessage{Error: message})
+}
+
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
-	response, _ := json.Marshal(payload)
+	response, err := json.Marshal(payload)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
