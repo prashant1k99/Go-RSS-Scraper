@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+	"net/http"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,6 +14,7 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Name      string    `json:"name"`
+	// ApiKey    string    `json:"apiKey"`
 }
 
 func databaseUserToUser(dbUser database.User) User {
@@ -20,5 +23,17 @@ func databaseUserToUser(dbUser database.User) User {
 		CreatedAt: dbUser.CreatedAt,
 		UpdatedAt: dbUser.UpdatedAt,
 		Name:      dbUser.Name,
+		// ApiKey:    dbUser.ApiKey,
+	}
+}
+
+func HandleSqlError(w http.ResponseWriter, err error) {
+	if err != nil {
+		if err == sql.ErrNoRows {
+			respondWithError(w, http.StatusNotFound, "User not found")
+			return
+		}
+		respondWithError(w, http.StatusInternalServerError, "Internal server error")
+		return
 	}
 }

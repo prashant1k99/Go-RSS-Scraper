@@ -61,7 +61,7 @@ func main() {
 		respondWithError(w, http.StatusBadRequest, "This is an error")
 	})
 	v1Router.Post("/user", apiConfig.createUser)
-	v1Router.Get("/user/{userId}", apiConfig.getUser)
+	v1Router.Get("/user", apiConfig.handleGetUser)
 
 	router.Mount("/v1", v1Router)
 

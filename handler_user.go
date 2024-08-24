@@ -2,11 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/go-chi/chi"
 	"github.com/google/uuid"
+	"github.com/prashant1k99/Go-RSS-Scraper/internal/auth"
 	"github.com/prashant1k99/Go-RSS-Scraper/internal/database"
 )
 
@@ -31,28 +32,23 @@ func (apiCfg apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt: time.Now().UTC(),
 	})
 
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Internal server error")
-		return
-	}
+	HandleSqlError(w, err)
 
 	respondWithJSON(w, http.StatusOK, databaseUserToUser(user))
 }
 
-func (apiCfg apiConfig) getUser(w http.ResponseWriter, r *http.Request) {
-	userId := chi.URLParam(r, "userId")
-
-	userUUID, err := uuid.Parse(userId)
+func (apiCfg apiConfig) handleGetUser(w http.ResponseWriter, r *http.Request) {
+	apiKey, err := auth.GetAPIKey(r.Header)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Invalid user id")
+		respondWithError(w, http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	user, err := apiCfg.DB.GetUserById(r.Context(), userUUID)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
+	fmt.Println("API: ", apiKey)
+
+	user, err := apiCfg.DB.GetUserByAPIKey(r.Context(), apiKey)
+	HandleSqlError(w, err)
+	fmt.Println(user)
 
 	respondWithJSON(w, http.StatusOK, databaseUserToUser(user))
 }
