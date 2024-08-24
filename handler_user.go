@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 	"github.com/prashant1k99/Go-RSS-Scraper/internal/database"
 )
@@ -32,6 +33,24 @@ func (apiCfg apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Internal server error")
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, user)
+}
+
+func (apiCfg apiConfig) getUser(w http.ResponseWriter, r *http.Request) {
+	userId := chi.URLParam(r, "userId")
+
+	userUUID, err := uuid.Parse(userId)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Invalid user id")
+		return
+	}
+
+	user, err := apiCfg.DB.GetUserById(r.Context(), userUUID)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
