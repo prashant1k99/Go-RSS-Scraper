@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,7 +10,13 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
+	"github.com/prashant1k99/Go-RSS-Scraper/internal/database"
 )
+
+type apiConfig struct {
+	DB *database.Queries
+}
 
 func main() {
 	fmt.Println("Hello World")
@@ -19,6 +26,20 @@ func main() {
 	PORT := os.Getenv("PORT")
 	if PORT == "" {
 		log.Fatal("$PORT must be set")
+	}
+
+	dbUrl := os.Getenv("DB_URL")
+	if dbUrl == "" {
+		log.Fatal("$DB_URL must be set")
+	}
+
+	conn, err := sql.Open("postgres", dbUrl)
+	if err != nil {
+		log.Fatal("Cannot connect to DB")
+	}
+
+	apiConfig := apiConfig{
+		DB: database.New(conn),
 	}
 
 	router := chi.NewRouter()
@@ -39,6 +60,7 @@ func main() {
 	v1Router.Get("/err", func(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, "This is an error")
 	})
+	v1Router.Post("/user", apiConfig.createUser)
 
 	router.Mount("/v1", v1Router)
 
@@ -52,7 +74,7 @@ func main() {
 	}
 
 	fmt.Printf("Server is running on port: http://localhost:%v\n", PORT)
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	if err != nil {
 		panic(err)
 	}
