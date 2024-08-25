@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -54,4 +55,37 @@ func (apiCfg apiConfig) getAllFeeds(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJSON(w, http.StatusOK, databaseFeedsToFeeds(feeds))
+}
+
+func (apiCfg apiConfig) handlerBulkCreateFeed(w http.ResponseWriter, r *http.Request, user database.User) {
+	// Parse the request body
+	type parameters struct {
+		Name string `json:"name"`
+		Url  string `json:"url"`
+	}
+	decoder := json.NewDecoder(r.Body)
+
+	params := []parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+
+	for _, param := range params {
+		_, err := apiCfg.DB.CreateFeed(r.Context(), database.CreateFeedParams{
+			ID:        uuid.New(),
+			Name:      param.Name,
+			CreatedAt: time.Now().UTC(),
+			UpdatedAt: time.Now().UTC(),
+			Url:       param.Url,
+			UserID:    user.ID,
+		})
+		if err != nil {
+			fmt.Println("Error creating feed:", err)
+			return
+		}
+	}
+
+	respondWithJSON(w, http.StatusOK, "Feeds created successfully")
 }

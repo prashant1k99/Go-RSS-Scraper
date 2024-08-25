@@ -51,5 +51,9 @@ func scrapeFeed(db *database.Queries, wg *sync.WaitGroup, feed database.Feed) {
 		log.Println("Error fetching feed:", err)
 		return
 	}
+
+	for _, item := range rssFeed.Channel.Items {
+		log.Printf("Found post %s on feed %s\n", item.Title, feed.Name)
+	}
 	log.Printf("Feed %s collected, %v items found \n", feed.Url, len(rssFeed.Channel.Items))
 }

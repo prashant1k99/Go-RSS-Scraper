@@ -62,6 +62,7 @@ func main() {
 	v1Router.Get("/user", apiConfig.middlewareAuth(apiConfig.handleGetUser))
 
 	v1Router.Post("/feed", apiConfig.middlewareAuth(apiConfig.createFeed))
+	v1Router.Post("/feed/bulk", apiConfig.middlewareAuth(apiConfig.handlerBulkCreateFeed))
 	v1Router.Get("/feed/list", apiConfig.getAllFeeds)
 
 	v1Router.Post("/feed_follows", apiConfig.middlewareAuth(apiConfig.handlerCreateFeedFollow))
