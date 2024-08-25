@@ -16,7 +16,6 @@ func HandleSqlError(w http.ResponseWriter, err error) {
 	}
 
 	respondWithError(w, http.StatusInternalServerError, "Internal server error")
-	return
 }
 
 type User struct {

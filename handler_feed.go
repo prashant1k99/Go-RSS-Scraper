@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 	"github.com/prashant1k99/Go-RSS-Scraper/internal/database"
 )
@@ -70,4 +71,25 @@ func (apiCfg apiConfig) getFeedByUser(w http.ResponseWriter, r *http.Request, us
 	}
 
 	respondWithJSON(w, http.StatusOK, convertedFeeds)
+}
+
+func (apiCfg apiConfig) getFeedById(w http.ResponseWriter, r *http.Request, user database.User) {
+	feedId := chi.URLParam(r, "feedId")
+	feedUUID, err := uuid.Parse(feedId)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid feedId")
+		return
+	}
+
+	feed, err := apiCfg.DB.GetFeedById(r.Context(), feedUUID)
+	if err != nil {
+		HandleSqlError(w, err)
+		return
+	}
+	if feed.UserID != user.ID {
+		respondWithError(w, http.StatusForbidden, "Unauthorized")
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, databaseFeedToFeed(feed))
 }
