@@ -9,6 +9,16 @@ import (
 	"github.com/prashant1k99/Go-RSS-Scraper/internal/database"
 )
 
+func HandleSqlError(w http.ResponseWriter, err error) {
+	if err == sql.ErrNoRows {
+		respondWithError(w, http.StatusNotFound, "User not found")
+		return
+	}
+
+	respondWithError(w, http.StatusInternalServerError, "Internal server error")
+	return
+}
+
 type User struct {
 	ID        uuid.UUID `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
@@ -27,11 +37,22 @@ func databaseUserToUser(dbUser database.User) User {
 	}
 }
 
-func HandleSqlError(w http.ResponseWriter, err error) {
-	if err == sql.ErrNoRows {
-		respondWithError(w, http.StatusNotFound, "User not found")
-		return
+type Feed struct {
+	ID        uuid.UUID `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Name      string    `json:"name"`
+	Url       string    `json:"url"`
+	UserId    string    `json:"userId"`
+}
+
+func databaseFeedToFeed(dbFeed database.Feed) Feed {
+	return Feed{
+		ID:        dbFeed.ID,
+		Name:      dbFeed.Name,
+		Url:       dbFeed.Url,
+		UserId:    dbFeed.UserID.String(),
+		CreatedAt: dbFeed.CreatedAt,
+		UpdatedAt: dbFeed.UpdatedAt,
 	}
-	respondWithError(w, http.StatusInternalServerError, "Internal server error")
-	return
 }

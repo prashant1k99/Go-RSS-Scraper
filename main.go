@@ -57,11 +57,10 @@ func main() {
 	v1Router := chi.NewRouter()
 
 	v1Router.Get("/healthz", handlerReadiness)
-	v1Router.Get("/err", func(w http.ResponseWriter, r *http.Request) {
-		respondWithError(w, http.StatusBadRequest, "This is an error")
-	})
 	v1Router.Post("/user", apiConfig.createUser)
 	v1Router.Get("/user", apiConfig.middlewareAuth(apiConfig.handleGetUser))
+	v1Router.Post("/feed", apiConfig.middlewareAuth(apiConfig.createFeed))
+	v1Router.Get("/feed", apiConfig.middlewareAuth(apiConfig.getFeedByUser))
 
 	router.Mount("/v1", v1Router)
 
