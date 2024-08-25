@@ -39,6 +39,17 @@ func (apiCfg apiConfig) createFeed(w http.ResponseWriter, r *http.Request, user 
 		return
 	}
 
+	_, err = apiCfg.DB.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		UserID:    user.ID,
+		FeedID:    feed.ID,
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+	})
+	if err != nil {
+		fmt.Println("Error creating follow feed after creating feed:", err)
+	}
+
 	respondWithJSON(w, http.StatusOK, databaseFeedToFeed(feed))
 }
 
