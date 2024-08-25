@@ -30,8 +30,10 @@ func (apiCfg apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt: time.Now().UTC(),
 	})
 
-	HandleSqlError(w, err, "User")
-
+	if err != nil {
+		HandleSqlError(w, err, "User")
+		return
+	}
 	respondWithJSON(w, http.StatusOK, databaseUserToUser(user))
 }
 
