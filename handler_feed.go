@@ -37,7 +37,7 @@ func (apiCfg apiConfig) createFeed(w http.ResponseWriter, r *http.Request, user 
 	})
 
 	if err != nil {
-		HandleSqlError(w, err)
+		HandleSqlError(w, err, "Feed")
 		return
 	}
 
@@ -60,7 +60,7 @@ func (apiCfg apiConfig) getFeedByUser(w http.ResponseWriter, r *http.Request, us
 		Limit:  int32(limit),
 	})
 	if err != nil {
-		HandleSqlError(w, err)
+		HandleSqlError(w, err, "Feed")
 		return
 	}
 
@@ -83,7 +83,7 @@ func (apiCfg apiConfig) getFeedById(w http.ResponseWriter, r *http.Request, user
 
 	feed, err := apiCfg.DB.GetFeedById(r.Context(), feedUUID)
 	if err != nil {
-		HandleSqlError(w, err)
+		HandleSqlError(w, err, "Feed")
 		return
 	}
 	if feed.UserID != user.ID {
@@ -91,5 +91,68 @@ func (apiCfg apiConfig) getFeedById(w http.ResponseWriter, r *http.Request, user
 		return
 	}
 
+	respondWithJSON(w, http.StatusOK, databaseFeedToFeed(feed))
+}
+
+func (apiCfg apiConfig) updateFeedById(w http.ResponseWriter, r *http.Request, user database.User) {
+	// Parse the request body
+	type parameters struct {
+		Name string `json:"name"`
+		Url  string `json:"url"`
+	}
+	decoder := json.NewDecoder(r.Body)
+
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+
+	// Validate the update feed params
+	if params.Name == "" || params.Url == "" {
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+
+	feedId := chi.URLParam(r, "feedId")
+	feedUUID, err := uuid.Parse(feedId)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid feedId")
+		return
+	}
+
+	feed, err := apiCfg.DB.UpdateFeed(r.Context(), database.UpdateFeedParams{
+		ID:        feedUUID,
+		Name:      params.Name,
+		UpdatedAt: time.Now().UTC(),
+		Url:       params.Url,
+		UserID:    user.ID,
+	})
+	if err != nil {
+		HandleSqlError(w, err, "Feed")
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, databaseFeedToFeed(feed))
+}
+
+func (apiCfg apiConfig) deleteFeedById(w http.ResponseWriter, r *http.Request, user database.User) {
+	feedId := chi.URLParam(r, "feedId")
+	feedUUID, err := uuid.Parse(feedId)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid feedId")
+		return
+	}
+
+	feed, err := apiCfg.DB.DeleteFeed(r.Context(), database.DeleteFeedParams{
+		ID:     feedUUID,
+		UserID: user.ID,
+	})
+	if err != nil {
+		HandleSqlError(w, err, "Feed")
+		return
+	}
+	fmt.Println(feed)
 	respondWithJSON(w, http.StatusOK, databaseFeedToFeed(feed))
 }

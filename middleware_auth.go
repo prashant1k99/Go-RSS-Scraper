@@ -19,7 +19,7 @@ func (apiCfg *apiConfig) middlewareAuth(handler authedHandler) http.HandlerFunc 
 
 		user, err := apiCfg.DB.GetUserByAPIKey(r.Context(), apiKey)
 		if err != nil {
-			HandleSqlError(w, err)
+			HandleSqlError(w, err, "User")
 			return
 		}
 

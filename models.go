@@ -9,9 +9,9 @@ import (
 	"github.com/prashant1k99/Go-RSS-Scraper/internal/database"
 )
 
-func HandleSqlError(w http.ResponseWriter, err error) {
+func HandleSqlError(w http.ResponseWriter, err error, queryType string) {
 	if err == sql.ErrNoRows {
-		respondWithError(w, http.StatusNotFound, "User not found")
+		respondWithError(w, http.StatusNotFound, queryType+" not found")
 		return
 	}
 

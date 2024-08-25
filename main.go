@@ -62,6 +62,8 @@ func main() {
 	v1Router.Post("/feed", apiConfig.middlewareAuth(apiConfig.createFeed))
 	v1Router.Get("/feed", apiConfig.middlewareAuth(apiConfig.getFeedByUser))
 	v1Router.Get("/feed/{feedId}", apiConfig.middlewareAuth(apiConfig.getFeedById))
+	v1Router.Put("/feed/{feedId}", apiConfig.middlewareAuth(apiConfig.updateFeedById))
+	v1Router.Delete("/feed/{feedId}", apiConfig.middlewareAuth(apiConfig.deleteFeedById))
 
 	router.Mount("/v1", v1Router)
 
