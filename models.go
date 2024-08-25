@@ -57,7 +57,7 @@ func databaseFeedToFeed(dbFeed database.Feed) Feed {
 }
 
 func databaseFeedsToFeeds(dbFeeds []database.Feed) []Feed {
-	feeds := make([]Feed, 0)
+	feeds := []Feed{}
 	for _, dbFeed := range dbFeeds {
 		feeds = append(feeds, databaseFeedToFeed(dbFeed))
 	}
@@ -83,7 +83,7 @@ func databaseFeedFollowToFeedFollow(dbFeedFollow database.FeedFollow) FeedFollow
 }
 
 func databaseFeedFollowedToFeedFollowed(dbFollowedFeed []database.FeedFollow) []FeedFollow {
-	followedFeed := make([]FeedFollow, 0, len(dbFollowedFeed))
+	followedFeed := []FeedFollow{}
 	for _, dbFeedFollow := range dbFollowedFeed {
 		followedFeed = append(followedFeed, databaseFeedFollowToFeedFollow(dbFeedFollow))
 	}
