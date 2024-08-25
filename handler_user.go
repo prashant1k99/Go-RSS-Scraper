@@ -2,12 +2,10 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/prashant1k99/Go-RSS-Scraper/internal/auth"
 	"github.com/prashant1k99/Go-RSS-Scraper/internal/database"
 )
 
@@ -37,18 +35,6 @@ func (apiCfg apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, databaseUserToUser(user))
 }
 
-func (apiCfg apiConfig) handleGetUser(w http.ResponseWriter, r *http.Request) {
-	apiKey, err := auth.GetAPIKey(r.Header)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, err.Error())
-		return
-	}
-
-	fmt.Println("API: ", apiKey)
-
-	user, err := apiCfg.DB.GetUserByAPIKey(r.Context(), apiKey)
-	HandleSqlError(w, err)
-	fmt.Println(user)
-
+func (apiCfg apiConfig) handleGetUser(w http.ResponseWriter, r *http.Request, user database.User) {
 	respondWithJSON(w, http.StatusOK, databaseUserToUser(user))
 }
