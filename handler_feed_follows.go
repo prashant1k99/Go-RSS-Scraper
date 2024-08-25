@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 	"github.com/prashant1k99/Go-RSS-Scraper/internal/database"
 )
@@ -54,4 +55,21 @@ func (apiCfg apiConfig) handlerGetAllFollowedFeeds(w http.ResponseWriter, r *htt
 	}
 
 	respondWithJSON(w, http.StatusOK, databaseFeedFollowedToFeedFollowed(followedFeeds))
+}
+
+func (apiCfg apiConfig) handlerDeleteFollowedFeed(w http.ResponseWriter, r *http.Request, user database.User) {
+	feedFollowIdStr := chi.URLParam(r, "followId")
+	feedFollowId, err := uuid.Parse(feedFollowIdStr)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid feed follow id")
+	}
+	err = apiCfg.DB.DeleteFeedFollow(r.Context(), database.DeleteFeedFollowParams{
+		ID:     feedFollowId,
+		UserID: user.ID,
+	})
+	if err != nil {
+		HandleSqlError(w, err, "Feed Follow")
+		return
+	}
+	respondWithJSON(w, http.StatusAccepted, map[string]string{"message": "Unfollowed successfully"})
 }
