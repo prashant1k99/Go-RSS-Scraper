@@ -59,11 +59,9 @@ func main() {
 	v1Router.Get("/healthz", handlerReadiness)
 	v1Router.Post("/user", apiConfig.createUser)
 	v1Router.Get("/user", apiConfig.middlewareAuth(apiConfig.handleGetUser))
+
 	v1Router.Post("/feed", apiConfig.middlewareAuth(apiConfig.createFeed))
-	v1Router.Get("/feed", apiConfig.middlewareAuth(apiConfig.getFeedByUser))
-	v1Router.Get("/feed/{feedId}", apiConfig.middlewareAuth(apiConfig.getFeedById))
-	v1Router.Put("/feed/{feedId}", apiConfig.middlewareAuth(apiConfig.updateFeedById))
-	v1Router.Delete("/feed/{feedId}", apiConfig.middlewareAuth(apiConfig.deleteFeedById))
+	v1Router.Get("/feed/list", apiConfig.getAllFeeds)
 
 	router.Mount("/v1", v1Router)
 
