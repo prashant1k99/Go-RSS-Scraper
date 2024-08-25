@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
@@ -19,8 +20,6 @@ type apiConfig struct {
 }
 
 func main() {
-	fmt.Println("Hello World")
-
 	godotenv.Load()
 
 	PORT := os.Getenv("PORT")
@@ -41,6 +40,8 @@ func main() {
 	apiConfig := apiConfig{
 		DB: database.New(conn),
 	}
+
+	go startScraping(apiConfig.DB, 5, time.Minute)
 
 	router := chi.NewRouter()
 

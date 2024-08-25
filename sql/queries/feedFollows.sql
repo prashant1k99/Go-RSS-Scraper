@@ -5,3 +5,6 @@ RETURNING *;
 
 -- name: GetAllFollowedFeeds :many
 SELECT * FROM feed_follows WHERE user_id = $1 ORDER BY created_at LIMIT $2 OFFSET $3;
+
+-- name: DeleteFeedFollow :exec
+DELETE FROM feed_follows WHERE id = $1 AND user_id = $2;
